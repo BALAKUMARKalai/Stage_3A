@@ -33,7 +33,6 @@ class BackComEnv :
         self._generate_channels()
         return self._get_state()
             
-        
     
     def _generate_channels(self):
         h_tilde = (np.random.randn(self.K) + 1j * np.random.randn(self.K))/ np.sqrt(2)
