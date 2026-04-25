@@ -3,7 +3,7 @@ import torch
 from Actor import Actor
 from Critic import Critic
 from ReplayBuffer import ReplayBuffer
-from environment import BackComEnv
+from DDPG.environment import BackComEnv
 
 
 class DDPG:
