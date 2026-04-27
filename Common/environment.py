@@ -14,7 +14,7 @@ class BackComEnv :
         self.Pmax = 1.0 #W
         self.Bk = 2e-3
         self.E_k_max = 2e-3 #J
-        self.T = 500 #number of time slots
+        self.T = 100 #500 #number of time slots
         self.gamma = 0.95 #discount factor
         self.K = 2 # number of BNs
         self.Ek = np.zeros(self.K)

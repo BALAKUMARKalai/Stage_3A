@@ -30,7 +30,7 @@ class ReplayBuffer:
         torch.FloatTensor(self.states[index]),
         torch.FloatTensor(self.actions[index]),
         torch.FloatTensor(self.rewards[index]),
-        torch.FloatTensor(self.next_states[index]),
+        torch.FloatTensor(self.next_state[index]),
         torch.FloatTensor(self.dones[index]))
         
         
