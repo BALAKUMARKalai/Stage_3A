@@ -27,7 +27,7 @@ class SAC:
         self.log_alpha = torch.zeros(1, requires_grad=True, device = self.device)
         self.alpha = self.log_alpha.exp()
         self.alpha_optimizer = torch.optim.Adam([self.log_alpha], lr=lr_alpha)
-        self.target_entropy = torch.tensor(-action_dim *0.5, dtype=torch.float32, device=self.device)
+        self.target_entropy = torch.tensor(-float(action_dim), dtype=torch.float32, device=self.device)
     def select_action(self, state):
         state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
         with torch.no_grad():
@@ -47,14 +47,16 @@ class SAC:
         critic_loss = torch.nn.functional.mse_loss(Q1_current, y) + torch.nn.functional.mse_loss(Q2_current,y)
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.critic.parameters(), max_norm=1.0)
         self.critic_optimizer.step()
-        
+
         #Update Actor
         actions_pred, log_prob, _ = self.actor(states)
         Q1, Q2 = self.critic(states, actions_pred)
         actor_loss = (self.log_alpha.exp().detach() * log_prob - torch.min(Q1, Q2)).mean()
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.actor.parameters(), max_norm=1.0)
         self.actor_optimizer.step()
         
         #Update alpha
@@ -66,6 +68,12 @@ class SAC:
         #Soft Update
         
         self.soft_update(self.critic, self.critic_target)
+        # Ajoute dans train()
+        """
+        print(f"alpha: {self.log_alpha.exp().item():.4f}")
+        print(f"actor_loss: {actor_loss.item():.4f}")
+        print(f"critic_loss: {critic_loss.item():.4f}")
+        """
     
     
     def soft_update(self, network,target_network):
