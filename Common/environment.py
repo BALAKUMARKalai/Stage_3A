@@ -39,6 +39,7 @@ class BackComEnv :
         g_tilde = (np.random.randn(self.K) + 1j * np.random.randn(self.K))/ np.sqrt(2)
         self.hk = h_tilde * self.d_0k **(-self.n)
         self.gk = g_tilde * self.dk ** (-self.n)
+        #print(f"gamma_k = {(np.abs(self.hk)**2 * np.abs(self.gk)**2)/self.sigma2}")
         return self.hk, self.gk
     
     def _compute_rewards(self,Ps, tau_a, beta):
@@ -50,6 +51,7 @@ class BackComEnv :
         self.sum_Rsum += R_sum
         self.sum_Etotal += E_total
         rt = R_sum/E_total
+        #print(f"Ps={Ps:.4f}, tau_a={tau_a:.4f}, s={s:.2f}, Rsum={R_sum:.4f}, Etotal={E_total:.4f}, EE={R_sum/E_total:.4f}")
         return rt
         
     def _update_energy(self,Ps,tau_a, beta):
