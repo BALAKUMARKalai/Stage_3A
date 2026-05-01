@@ -92,7 +92,7 @@ for name, agent, use_noise in configs:
     print(f"\n{'='*40} {name} {'='*40}")
     results[name] = run(env, agent, name, external_noise=use_noise)
 
-
+ 
 colors = {'DDPG': 'steelblue', 'TD3': 'tomato', 'SAC': 'seagreen'}
 
 fig, axes = plt.subplots(1, 3, figsize=(16, 5), sharey=True)
@@ -108,6 +108,6 @@ for ax, (name, ee) in zip(axes, results.items()):
     ax.set_ylabel('EE')
     ax.legend()
 
-plt.title('Comparaison DDPG / TD3 / SAC — même environnement')
+plt.title('Comparaison DDPG / TD3 / SAC:  même environnement')
 plt.tight_layout()
 plt.show()

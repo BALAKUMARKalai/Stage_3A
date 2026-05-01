@@ -14,7 +14,7 @@ class BackComEnv :
         self.Pmax = 1.0 #W
         self.Bk = 2e-3
         self.E_k_max = 2e-3 #J
-        self.T = 100 #500 #number of time slots
+        self.T = 500 #500 #number of time slots
         self.gamma = 0.95 #discount factor
         self.K = 2 # number of BNs
         self.Ek = np.zeros(self.K)
@@ -51,7 +51,11 @@ class BackComEnv :
         self.sum_Rsum += R_sum
         self.sum_Etotal += E_total
         rt = R_sum/E_total
-        #print(f"Ps={Ps:.4f}, tau_a={tau_a:.4f}, s={s:.2f}, Rsum={R_sum:.4f}, Etotal={E_total:.4f}, EE={R_sum/E_total:.4f}")
+        '''
+        print(f"d_0k={self.d_0k}, dk={self.dk}")
+        print(f"gamma_k={gamma_k}")
+        print(f"Rsum={R_sum:.4f}, Etotal={E_total:.4f}, EE={R_sum/E_total:.4f}")
+        '''
         return rt
         
     def _update_energy(self,Ps,tau_a, beta):
