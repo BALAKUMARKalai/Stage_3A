@@ -42,8 +42,7 @@ class Actor(nn.Module):
         mean_action = (torch.tanh(mu) +1)/2
         mean_action[...,0] = mean_action[...,0] * self.Pmax
         return action, log_prob, mean_action
-        print(f"mu: {mu.mean().item():.3f}, std: {std.mean().item():.3f}")
-        print(f"y_t mean: {y_t.mean().item():.3f}")
+      
         
     def sample(self, state):
         state = torch.FloatTensor(state).unsqueeze(0)

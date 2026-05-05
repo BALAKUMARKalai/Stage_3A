@@ -108,6 +108,6 @@ for ax, (name, ee) in zip(axes, results.items()):
     ax.set_ylabel('EE')
     ax.legend()
 
-plt.title('Comparaison DDPG / TD3 / SAC:  même environnement')
+fig.suptitle('Comparaison DDPG / TD3 / SAC :même environnement', fontsize=13)
 plt.tight_layout()
 plt.show()

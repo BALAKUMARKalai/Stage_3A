@@ -16,8 +16,8 @@ class TD3:
         self.N = 1000
         self.policy_freq = 2
         self.total_steps = 0
-        self.policy_noise = 0.2
-        self.noise_clip = 0.5
+        self.policy_noise = 0.1 #0.2
+        self.noise_clip = 0.25 #0.5
         self.Pmax = Pmax
         self.gamma = gamma
         self.tau = tau
