@@ -15,6 +15,7 @@ action_dim = 2 + K
 MIN_BUFFER_SIZE = 1000
 N_EPISODES = 2000
 
+np.random.seed(200)
 env = BackComEnv()
 agent = DDPG(state_dim=state_dim, action_dim=action_dim, Pmax=1.0, K=K)
 
@@ -40,8 +41,8 @@ for episode in range(N_EPISODES):
         next_state, reward, done = env.step(action)
         agent.replay_buffer.add(state, action, reward, next_state, done)
         
-        if agent.replay_buffer.size >= MIN_BUFFER_SIZE and t % 4 == 0: 
-            #if agent.replay_buffer.size >= MIN_BUFFER_SIZE: temps d'entrainement divisé par 4 pour accélerer
+        #if agent.replay_buffer.size >= MIN_BUFFER_SIZE and t % 4 == 0: 
+        if agent.replay_buffer.size >= MIN_BUFFER_SIZE: 
             agent.train(agent.replay_buffer, agent.batch_size)
         
         episode_reward += reward
@@ -55,7 +56,7 @@ for episode in range(N_EPISODES):
     reward_per_episode.append(episode_reward)
     noise_std = max(noise_min, noise_std * noise_decay)
     
-    if episode % 10 == 0:
+    if episode % 100 == 0:
         print(f"Episode {episode} | EE: {ee:.4f} | Reward: {episode_reward:.4f} | Noise: {noise_std:.4f}")
 window = 50
 ee_smooth = np.convolve(ee_per_episode, np.ones(window)/window, mode='valid')
@@ -66,4 +67,4 @@ plt.plot(range(window - 1, N_EPISODES), ee_smooth, label=f'Moyenne glissante ({w
 plt.xlabel('Episodes')
 plt.ylabel('EE')
 plt.legend()
-plt.show()
+plt.savefig('DDPG2')
