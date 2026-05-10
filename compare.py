@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 base = os.path.dirname(os.path.abspath(__file__))
 
-
+np.random.seed(200)
 original_path = list(sys.path)
 
 sys.path.insert(0, os.path.join(base, 'DDPG'))
@@ -26,18 +26,22 @@ for _m in ['Actor', 'Critic', 'SAC']:
     sys.modules.pop(_m, None)
 sys.path = list(original_path)
 
+sys.path.insert(0, os.path.join(base, 'greedy_dinkelbach'))
+from greedy_dinkelbach import GreedyDinkelbach
+sys.path = list(original_path)
+
 sys.path.insert(0, base)
 from Common.environment import BackComEnv
 
-K             = 2
-state_dim     = 3 * K
-action_dim    = 2 + K
-MIN_BUFFER    = 1000
-N_EPISODES    = 2000
-WINDOW        = 50
-NOISE_INIT    = 0.3
-NOISE_DECAY   = 0.995
-NOISE_MIN     = 0.01
+K           = 2
+state_dim   = 3 * K
+action_dim  = 2 + K
+MIN_BUFFER  = 1000
+N_EPISODES  = 2000
+WINDOW      = 50
+NOISE_INIT  = 0.3
+NOISE_DECAY = 0.995
+NOISE_MIN   = 0.01
 
 
 def run(env, agent, name, external_noise=True):
@@ -74,17 +78,46 @@ def run(env, agent, name, external_noise=True):
             noise_std = max(NOISE_MIN, noise_std * NOISE_DECAY)
 
         if ep % 100 == 0:
-            print(f"[{name}] ep {ep:4d} | EE: {ee:.4f} | noise: {noise_std:.4f}")
+            print(f"[{name}] ep {ep:4d} | EE: {ee:.4f}")
 
     return np.array(ee_history)
 
-# Un seul env → mêmes distances pour les 3 algos
+
+def run_baseline(env, agent, name):
+    ee_history = []
+
+    for ep in range(N_EPISODES):
+        state = env.reset()
+
+        for t in range(env.T):
+            action = agent.select_action(state)
+            action[0]  = np.clip(action[0],  0,    env.Pmax)
+            action[1]  = np.clip(action[1],  1e-6, 1.0)
+            action[2:] = np.clip(action[2:], 0,    1.0)
+            state, _, done = env.step(action)
+            if done:
+                break
+
+        ee = env.sum_Rsum / env.sum_Etotal
+        ee_history.append(ee)
+
+        if ep % 100 == 0:
+            print(f"[{name}] ep {ep:4d} | EE: {ee:.4f}")
+
+    return np.array(ee_history)
+
+
 env = BackComEnv()
 
+dinkelbach = GreedyDinkelbach(
+    K=K, Pmax=env.Pmax, eta=env.eta, eps=env.eps,
+    Psc=env.Psc, Prc=env.Prc, Ptc_k=env.Ptc_k, sigma2=env.sigma2,
+)
+
 configs = [
-    ('DDPG', DDPG(state_dim, action_dim, Pmax=1.0, K=K), True),
-    ('TD3',  TD3 (state_dim, action_dim, Pmax=1.0, K=K), True),
-    ('SAC',  SAC (state_dim, action_dim, Pmax=1.0, K=K), False),
+    ('DDPG',       DDPG(state_dim, action_dim, Pmax=1.0, K=K), True),
+    ('TD3',        TD3 (state_dim, action_dim, Pmax=1.0, K=K), True),
+    ('SAC',        SAC (state_dim, action_dim, Pmax=1.0, K=K), False),
 ]
 
 results = {}
@@ -92,22 +125,29 @@ for name, agent, use_noise in configs:
     print(f"\n{'='*40} {name} {'='*40}")
     results[name] = run(env, agent, name, external_noise=use_noise)
 
- 
-colors = {'DDPG': 'steelblue', 'TD3': 'tomato', 'SAC': 'seagreen'}
+print(f"\n{'='*40} Greedy Dinkelbach {'='*40}")
+results['Greedy Dinkelbach'] = run_baseline(env, dinkelbach, 'Greedy Dinkelbach')
 
-fig, axes = plt.subplots(1, 3, figsize=(16, 5), sharey=True)
+# ── Plot superposé ────────────────────────────────────────────────────────────
+colors = {
+    'DDPG':             'steelblue',
+    'TD3':              'tomato',
+    'SAC':              'seagreen',
+    'Greedy Dinkelbach':'darkorange',
+}
 
-for ax, (name, ee) in zip(axes, results.items()):
+fig, ax = plt.subplots(figsize=(10, 6))
+
+for name, ee in results.items():
     smooth = np.convolve(ee, np.ones(WINDOW) / WINDOW, mode='valid')
-    ax.plot(ee, alpha=0.25, color=colors[name], label='EE brut')
+    ax.plot(ee, alpha=0.15, color=colors[name])
     ax.plot(range(WINDOW - 1, N_EPISODES), smooth,
-            color=colors[name], linewidth=2,
-            label=f'Moyenne glissante ({WINDOW} ep)')
-    ax.set_title(name, fontsize=14, fontweight='bold')
-    ax.set_xlabel('Épisodes')
-    ax.set_ylabel('EE')
-    ax.legend()
+            color=colors[name], linewidth=2, label=name)
 
-fig.suptitle('Comparaison DDPG / TD3 / SAC :même environnement', fontsize=13)
+ax.set_xlabel('Épisodes')
+ax.set_ylabel('EE (bits/Joule)')
+ax.set_title('Comparaison DDPG / TD3 / SAC / Greedy Dinkelbach')
+ax.legend()
 plt.tight_layout()
-plt.show()
+plt.savefig('resultats4.png', dpi=150)
+print("\nFigure sauvegardée : resultats_same_plot.png")

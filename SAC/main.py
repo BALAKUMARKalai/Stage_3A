@@ -7,6 +7,7 @@ from Common.environment import BackComEnv
 import numpy as np
 import matplotlib.pyplot as plt
 
+np.random.seed(200)
 
 K = 2
 state_dim = 3 * K
@@ -15,6 +16,7 @@ MIN_BUFFER_SIZE = 1000
 N_EPISODES = 2000
 
 env = BackComEnv()
+print(f"d_0k={env.d_0k.round(2)}, dk={env.dk.round(2)}")
 agent = SAC(state_dim=state_dim, action_dim=action_dim, Pmax=1.0, K=K)
 
 ee_per_episode = []
@@ -33,8 +35,8 @@ for episode in range(N_EPISODES):
         next_state, reward, done = env.step(action)
         agent.replay_buffer.add(state, action, reward, next_state, done)
         
-        #if agent.replay_buffer.size >= MIN_BUFFER_SIZE and t % 4 == 0: 
-        if agent.replay_buffer.size >= MIN_BUFFER_SIZE: 
+        if agent.replay_buffer.size >= MIN_BUFFER_SIZE and t % 4 == 0: 
+        #if agent.replay_buffer.size >= MIN_BUFFER_SIZE: 
             agent.train(agent.replay_buffer, agent.batch_size)
         
         episode_reward += reward

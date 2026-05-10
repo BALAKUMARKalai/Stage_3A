@@ -41,8 +41,8 @@ for episode in range(N_EPISODES):
         next_state, reward, done = env.step(action)
         agent.replay_buffer.add(state, action, reward, next_state, done)
         
-        #if agent.replay_buffer.size >= MIN_BUFFER_SIZE and t % 4 == 0: 
-        if agent.replay_buffer.size >= MIN_BUFFER_SIZE: 
+        if agent.replay_buffer.size >= MIN_BUFFER_SIZE and t % 4 == 0: 
+        #if agent.replay_buffer.size >= MIN_BUFFER_SIZE: 
             agent.train(agent.replay_buffer, agent.batch_size)
         
         episode_reward += reward
@@ -67,4 +67,4 @@ plt.plot(range(window - 1, N_EPISODES), ee_smooth, label=f'Moyenne glissante ({w
 plt.xlabel('Episodes')
 plt.ylabel('EE')
 plt.legend()
-plt.savefig('DDPG2')
+plt.savefig('DDPG3')

@@ -8,7 +8,7 @@ from Common.ReplayBuffer import ReplayBuffer
 
 class SAC:
     def __init__(self, state_dim, action_dim, Pmax,K, tau = 0.001, gamma = 0.95,
-                lr_actor = 1e-4, lr_critic = 1e-3, lr_alpha = 3e-4, buffer_size = 100000, batch_size = 64):
+                lr_actor = 3e-4, lr_critic = 3e-4, lr_alpha = 3e-4, buffer_size = 100000, batch_size = 64):
         self.N_EPISODES = 2000
         self.T = 500 #500
         self.N = 1000 #1000 #Averaging

@@ -11,7 +11,7 @@ from Common.ReplayBuffer import ReplayBuffer
 
 class DDPG:
     def __init__(self, state_dim, action_dim, Pmax, K, tau = 0.001, gamma = 0.95,
-                lr_actor = 1e-4, lr_critic = 1e-3, buffer_size = 100000, batch_size = 64):
+                lr_actor = 5e-5, lr_critic = 3e-4, buffer_size = 100000, batch_size = 64):
         self.N_EPISODES = 2000
         self.T = 500 #500
         self.N = 1000 #1000 #Averaging
@@ -51,13 +51,15 @@ class DDPG:
         critic_loss = torch.nn.functional.mse_loss(Q_current, y)
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.critic.parameters(), max_norm=1.0) #catastroph forgetting
         self.critic_optimizer.step()
-           
+
         #Update Actor
         actions_pred = self.actor(states)
         actor_loss = -self.critic(states, actions_pred).mean()
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.actor.parameters(), max_norm=1.0)
         self.actor_optimizer.step()
             
         #Soft Update Target Networks

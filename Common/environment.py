@@ -10,7 +10,7 @@ class BackComEnv :
         self.eps = 0.9 #Amplifier Efficiency 
         self.Psc = 0.1 #W
         self.Prc = 0.01 #W
-        self.Ptc_k = 1e-3 #W
+        self.Ptc_k = 0 #1e-3 #W
         self.Pmax = 1.0 #W
         self.Bk = 2e-3
         self.E_k_max = 2e-3 #J
@@ -19,10 +19,17 @@ class BackComEnv :
         self.K = 2 # number of BNs
         self.Ek = np.zeros(self.K)
         self.max_distance = 40 #max distance between RF and BR (m)
-        
-        self.d_0k = np.random.uniform(5,20, self.K) #distance RF source à BN k
-        self.dk = np.random.uniform(5,20,self.K) #distance BN k au BR
+        '''
+        rng = np.random.RandomState(42)
+
+        self.d_0k = rng.uniform(5, 20, self.K) #distance RF source à BN k
+        self.dk   = rng.uniform(5, 20, self.K) #distance BN k au BR
+        '''
+        self.d_0k = np.array([8.0, 10.0])
+        self.dk   = np.array([9.0, 11.0])
+
         self.t = 0
+        self._generate_channels()
     
     def reset(self):
         #On réinistiallise les énergies de chaque BN, les accumulateurs, le compteur et les canaux
