@@ -63,8 +63,10 @@ class GreedyDinkelbach:
         else:
             Ps_min = 0.0   
 
-        mu = 1.0 - np.sum(self.Ptc_k / (self.eta * hk_sq_f[canal_ok])) \
-             if np.any(canal_ok) else 1.0
+        gk_sq_over_sigma = gamma_k / hk_sq  # = gk²/sigma²
+    
+        mu = (1.0 - np.sum(self.Ptc_k * gk_sq_over_sigma / self.eta)
+              if np.any(canal_ok) else 1.0)
 
         for _ in range(self.n_iter):
 
